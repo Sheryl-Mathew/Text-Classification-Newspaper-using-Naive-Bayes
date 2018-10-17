@@ -1,0 +1,11 @@
+---
+title: "Text Classification (Newspaper) using Naive Bayes"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
