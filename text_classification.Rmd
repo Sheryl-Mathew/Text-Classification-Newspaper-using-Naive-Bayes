@@ -29,14 +29,16 @@ for(query in queries){
     data = as.data.frame(json$response$results)
     news_data = rbind(news_data,data)
   }
-  print(kable(head(data), format = "latex", booktabs = T, 
+  select_data=select(data,c("sectionName","webPublicationDate","webTitle"))
+  print(kable(head(select_data), format = "latex", booktabs = T, 
           caption=paste("Table containing",toupper(query)," News")) %>%
       kable_styling(latex_options = c("striped","hold_position")))
   cat("\n")
+  print(paste("Number of rows in ",toupper(query)," News: ",nrow(data)))
 }
 ```
-
-```{r}
+\newpage
+```{r data_collection_summary}
 summary(news_data)
 ```
 
