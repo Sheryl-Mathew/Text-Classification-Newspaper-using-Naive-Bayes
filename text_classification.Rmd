@@ -2,10 +2,42 @@
 title: "Text Classification (Newspaper) using Naive Bayes"
 output:
   pdf_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+##Data Collection
+
+```{r data_collection, results = "asis"}
+library(jsonlite)
+library(dplyr)
+library(kableExtra) 
+api = 'https://content.guardianapis.com/search?'
+api_key = '0e9a8c4e-1866-4503-a9eb-70e391c499c4'
+page_size = '200'
+pages = c(1:5)
+queries = c('business','sports','entertainment','economy','politics','science')
+
+news_data = data.frame()
+for(query in queries){
+  for (page in pages){
+    url = paste(api, 'q=', query, '&page-size=', page_size, '&page=', page, '&api-key=', api_key, 
+                sep = "")
+    json = fromJSON(url)
+    data = as.data.frame(json$response$results)
+    news_data = rbind(news_data,data)
+  }
+  print(kable(head(data), format = "latex", booktabs = T, 
+          caption=paste("Table containing",toupper(query)," News")) %>%
+      kable_styling(latex_options = c("striped","hold_position")))
+  cat("\n")
+}
+```
+
+```{r}
+summary(news_data)
+```
+
 
