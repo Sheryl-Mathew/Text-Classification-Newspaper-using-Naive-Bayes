@@ -21,24 +21,31 @@ pages = c(1:5)
 queries = c('business','sports','entertainment','economy','politics','science')
 
 news_data = data.frame()
+data_count = list()
 for(query in queries){
   for (page in pages){
     url = paste(api, 'q=', query, '&page-size=', page_size, '&page=', page, '&api-key=', api_key, 
                 sep = "")
     json = fromJSON(url)
     data = as.data.frame(json$response$results)
+    data_count = append(data_count,nrow(data))
     news_data = rbind(news_data,data)
   }
+
   select_data=select(data,c("sectionName","webPublicationDate","webTitle"))
   print(kable(head(select_data), format = "latex", booktabs = T, 
           caption=paste("Table containing",toupper(query)," News")) %>%
       kable_styling(latex_options = c("striped","hold_position")))
   cat("\n")
-  print(paste("Number of rows in ",toupper(query)," News: ",nrow(data)))
+  
+  print(paste("Number of rows in ",toupper(query)," News: ",sum(as.integer(data_count))))
+  cat("\n")
+  data_count = 0
 }
 ```
 \newpage
 ```{r data_collection_summary}
+print(paste("Total Number of rows in News: ",nrow(news_data)))
 summary(news_data)
 ```
 
