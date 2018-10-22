@@ -1,7 +1,13 @@
 ---
 title: "Text Classification (Newspaper) using Naive Bayes"
+author: "Sheryl Mathew (11627236)"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  pdf_document: default
+  pdf_document:
+    latex_engine: xelatex
+  word_document: default
+sansfont: Times New Roman
+mainfont: Times New Roman
 ---
 
 ```{r setup, include=FALSE}
@@ -14,39 +20,151 @@ knitr::opts_chunk$set(echo = TRUE)
 library(jsonlite)
 library(dplyr)
 library(kableExtra) 
+
 api = 'https://content.guardianapis.com/search?'
 api_key = '0e9a8c4e-1866-4503-a9eb-70e391c499c4'
 page_size = '200'
-pages = c(1:5)
-queries = c('business','sports','entertainment','economy','politics','science')
+
+# pages = c(1:5)
+# queries = c('business','sports','entertainment','economy','politics','science','crime','health','art','technology')
+
+pages = c(1:2)
+queries = c('business','sports')
 
 news_data = data.frame()
 data_count = list()
+sum_data_count = list()
+
 for(query in queries){
   for (page in pages){
-    url = paste(api, 'q=', query, '&page-size=', page_size, '&page=', page, '&api-key=', api_key, 
+    url = paste(api, 'q=', query, '&page-size=', page_size, '&page=', page, '&show-fields=body', '&api-key=', api_key, 
                 sep = "")
     json = fromJSON(url)
+    body = as.data.frame(json$response$results$fields$body)
     data = as.data.frame(json$response$results)
+    data = select(json, -c(fields))
+    data = cbind(data,body)
     data_count = append(data_count,nrow(data))
+    sum_data_count = append(sum_data_count,sum(as.integer(data_count)))
     news_data = rbind(news_data,data)
   }
-
-  select_data=select(data,c("sectionName","webPublicationDate","webTitle"))
-  print(kable(head(select_data), format = "latex", booktabs = T, 
-          caption=paste("Table containing",toupper(query)," News")) %>%
-      kable_styling(latex_options = c("striped","hold_position")))
-  cat("\n")
   
-  print(paste("Number of rows in ",toupper(query)," News: ",sum(as.integer(data_count))))
-  cat("\n")
+  # select_data=select(data,c("sectionName","webPublicationDate","webTitle"))
+  # print(kable(head(select_data), format = "latex", booktabs = T, 
+  #         caption=paste("Table containing",toupper(query)," News")) %>%
+  #     kable_styling(latex_options = c("striped","hold_position")))
+  # cat("\n")
+  
   data_count = 0
 }
+
+View(news_data)
 ```
 \newpage
 ```{r data_collection_summary}
+mapply(print(paste("Number of rows in ",query," News: ",data_count)),query = toupper(queries), data_count = sum_data_count)
+cat("\n")
 print(paste("Total Number of rows in News: ",nrow(news_data)))
 summary(news_data)
 ```
 
+## Data Cleaning
+
+```{r data_cleaning}
+library(tidyverse)
+library(reshape)
+library(qdap)
+library(textclean)
+
+print("Columns in the News data before cleaning:")
+names(news_data)
+
+kable(head(news_data), format = "latex", booktabs = T,
+        caption=paste("Table containing Unclean News Data")) %>%
+    kable_styling(latex_options = c("striped","hold_position"))
+
+news = news_data%>%
+  select(c())%>%
+  rename(
+    
+  )%>%
+  na.omit()
+
+abv = c("bn")
+rep = c("billion")
+
+clean_function = function(data){
+  data = str_replace_all(data, "<.*?>","") 
+  data = gsub(data,"[[:punct:]]"," ")
+  data = str_replace_all(data, "-","")
+  data = replace_curly_quote(data)
+  data = replace_symbol(data)
+  data = replace_money(data)
+  data = replace_abbreviation(data)
+  data = replace_word_elongation(data)
+  data = replace_contraction(data)
+  data = replace_incomplete(data)
+  data = replace_date(data)
+  #data = replace_number(data)
+  data = iconv(data,from="UTF-8",to="ASCII//TRANSLIT")
+  data = tolower(data)
+  data = trimws(data)
+  data = str_squish(data)
+  data = str_replace_all(data, "[^a-zA-Z]","") 
+}
+
+news$body = clean_function(data)
+
+print("Sample of Clean News Article Body:")
+cat("\n")
+news$body[2]
+
+kable(head(news), format = "latex", booktabs = T,
+        caption=paste("Table containing Clean News Data")) %>%
+    kable_styling(latex_options = c("striped","hold_position"))
+
+```
+
+```{r}
+  data = news$body[2]
+  data = str_replace_all(data, "<.*?>","") 
+  data = gsub(data,"[[:punct:]]"," ")
+  data = str_replace_all(data, "-","")
+  data = replace_curly_quote(data)
+  data = replace_symbol(data)
+  data = replace_money(data)
+  data = replace_abbreviation(data)
+  data = replace_word_elongation(data)
+  data = replace_contraction(data)
+  data = replace_incomplete(data)
+  data = replace_date(data)
+  #data = replace_number(data)
+  data = iconv(data,from="UTF-8",to="ASCII//TRANSLIT")
+  data = tolower(data)
+  data = trimws(data)
+  data = str_squish(data)
+  data = str_replace_all(data, "[^a-zA-Z]","") 
+  data
+```
+
+## Tokenization
+
+```{r tokenization}
+library(tm)
+library(stopwords)
+library(SnowballC)
+
+news_body = news$body
+tokenized_words = tokenize_word_stems(news_body, stopwords = stopwords::stopwords("en"))
+tokenized_words
+
+print(paste("Number of tokenised words: ",length(tokenized_words)))
+corpus_words = Corpus(VectorSource(tokenized_words))
+term_matrix = DocumentTermMatrix(corpus_words,
+                   control=list(
+                       tokenize=newBigramTokenizer,
+                       wordLengths = c(1, Inf)))
+term_matrix
+inspect(term_matrix)
+```
 
