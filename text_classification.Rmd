@@ -4,7 +4,7 @@ author: "Sheryl Mathew (11627236)"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document:
-    latex_engine: xelatex
+    latex_engine: pdflatex
   word_document: default
 sansfont: Times New Roman
 mainfont: Times New Roman
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ##Data Collection
 
-```{r data_collection, results = "asis"}
+```{r data_collection, results = "asis", out.height="40%"}
 library(jsonlite)
 library(dplyr)
 library(kableExtra) 
@@ -40,31 +40,36 @@ for(query in queries){
     url = paste(api, 'q=', query, '&page-size=', page_size, '&page=', page, '&show-fields=body', '&api-key=', api_key, 
                 sep = "")
     json = fromJSON(url)
-    body = as.data.frame(json$response$results$fields$body)
+    body = as.data.frame(json$response$results$fields)
     data = as.data.frame(json$response$results)
-    data = select(json, -c(fields))
+    data = subset(data, select = -c(fields))
     data = cbind(data,body)
     data_count = append(data_count,nrow(data))
-    sum_data_count = append(sum_data_count,sum(as.integer(data_count)))
     news_data = rbind(news_data,data)
   }
   
-  # select_data=select(data,c("sectionName","webPublicationDate","webTitle"))
+  # select_data = select(data, c("sectionName","body"))
   # print(kable(head(select_data), format = "latex", booktabs = T, 
   #         caption=paste("Table containing",toupper(query)," News")) %>%
   #     kable_styling(latex_options = c("striped","hold_position")))
   # cat("\n")
   
+  sum_data_count = append(sum_data_count,sum(as.integer(data_count)))
   data_count = 0
 }
-
-View(news_data)
 ```
 \newpage
-```{r data_collection_summary}
-mapply(print(paste("Number of rows in ",query," News: ",data_count)),query = toupper(queries), data_count = sum_data_count)
+```{r data_collection_display}
+print_data = function(query,sum_data_count){
+  print(paste("Number of rows in ",toupper(query)," queries: ",sum_data_count))
+  cat("\n")
+}
+mapply(print_data,query = queries,sum_data_count = sum_data_count)
 cat("\n")
+
 print(paste("Total Number of rows in News: ",nrow(news_data)))
+cat("\n")
+
 summary(news_data)
 ```
 
@@ -76,6 +81,48 @@ library(reshape)
 library(qdap)
 library(textclean)
 
+news = news_data%>%
+  select ( c("id", "pillarName", "sectionName", "webTitle", "body"))%>%
+  rename(
+    c(
+    'pillarName' = 'type',
+    'sectionName' = 'section',
+    'webTitle' = 'title'
+    )
+  )%>%
+  na.omit()
+```
+
+```{r data_cleaning_function}
+abv = c("bn")
+rep = c("billion")
+
+clean_function = function(data){
+  data = str_replace_all(data, "<.*?>","") 
+  data = lapply(data, function(x) gsub("[[:punct:]]"," ",x))
+  data = str_replace_all(data, " – ", " ")
+  data = gsub("\"", " ", data)
+  data = replace_curly_quote(data)
+  data = replace_symbol(data)
+  data = replace_money(data)
+  data = replace_abbreviation(data)
+  data = replace_word_elongation(data)
+  data = replace_contraction(data)
+  data = replace_incomplete(data)
+  data = replace_date(data)
+  data = replace_ordinal(data)
+  data = replace_number(data)
+  data = iconv(data,from="UTF-8",to="ASCII//TRANSLIT")
+  data = tolower(data)
+  data = trimws(data)
+  data = str_squish(data)
+  data = str_replace_all(data, "[^a-zA-Z\\s]","") 
+}
+
+news$body = clean_function(news$body)
+```
+
+```{r data_cleaning_display}
 print("Columns in the News data before cleaning:")
 names(news_data)
 
@@ -83,68 +130,22 @@ kable(head(news_data), format = "latex", booktabs = T,
         caption=paste("Table containing Unclean News Data")) %>%
     kable_styling(latex_options = c("striped","hold_position"))
 
-news = news_data%>%
-  select(c())%>%
-  rename(
-    
-  )%>%
-  na.omit()
-
-abv = c("bn")
-rep = c("billion")
-
-clean_function = function(data){
-  data = str_replace_all(data, "<.*?>","") 
-  data = gsub(data,"[[:punct:]]"," ")
-  data = str_replace_all(data, "-","")
-  data = replace_curly_quote(data)
-  data = replace_symbol(data)
-  data = replace_money(data)
-  data = replace_abbreviation(data)
-  data = replace_word_elongation(data)
-  data = replace_contraction(data)
-  data = replace_incomplete(data)
-  data = replace_date(data)
-  #data = replace_number(data)
-  data = iconv(data,from="UTF-8",to="ASCII//TRANSLIT")
-  data = tolower(data)
-  data = trimws(data)
-  data = str_squish(data)
-  data = str_replace_all(data, "[^a-zA-Z]","") 
-}
-
-news$body = clean_function(data)
-
-print("Sample of Clean News Article Body:")
-cat("\n")
-news$body[2]
+print("Columns in the News data after cleaning:")
+names(news)
 
 kable(head(news), format = "latex", booktabs = T,
         caption=paste("Table containing Clean News Data")) %>%
     kable_styling(latex_options = c("striped","hold_position"))
 
-```
+print("Sample of Unclean News Article Body:")
+cat("\n")
+news_data$body[2]
 
-```{r}
-  data = news$body[2]
-  data = str_replace_all(data, "<.*?>","") 
-  data = gsub(data,"[[:punct:]]"," ")
-  data = str_replace_all(data, "-","")
-  data = replace_curly_quote(data)
-  data = replace_symbol(data)
-  data = replace_money(data)
-  data = replace_abbreviation(data)
-  data = replace_word_elongation(data)
-  data = replace_contraction(data)
-  data = replace_incomplete(data)
-  data = replace_date(data)
-  #data = replace_number(data)
-  data = iconv(data,from="UTF-8",to="ASCII//TRANSLIT")
-  data = tolower(data)
-  data = trimws(data)
-  data = str_squish(data)
-  data = str_replace_all(data, "[^a-zA-Z]","") 
-  data
+cat("\n")
+
+print("Sample of Clean News Article Body:")
+cat("\n")
+news$body[2]
 ```
 
 ## Tokenization
@@ -152,19 +153,19 @@ kable(head(news), format = "latex", booktabs = T,
 ```{r tokenization}
 library(tm)
 library(stopwords)
-library(SnowballC)
+library(tokenizers)
 
 news_body = news$body
 tokenized_words = tokenize_word_stems(news_body, stopwords = stopwords::stopwords("en"))
-tokenized_words
+#tokenized_words
 
-print(paste("Number of tokenised words: ",length(tokenized_words)))
-corpus_words = Corpus(VectorSource(tokenized_words))
-term_matrix = DocumentTermMatrix(corpus_words,
-                   control=list(
-                       tokenize=newBigramTokenizer,
-                       wordLengths = c(1, Inf)))
-term_matrix
-inspect(term_matrix)
+# print(paste("Number of tokenised words: ",length(tokenized_words)))
+# corpus_words = Corpus(VectorSource(tokenized_words))
+# term_matrix = DocumentTermMatrix(corpus_words,
+#                    control=list(
+#                        tokenize=newBigramTokenizer,
+#                        wordLengths = c(1, Inf)))
+# term_matrix
+# inspect(term_matrix)
 ```
 

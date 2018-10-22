@@ -1,0 +1,593 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+    \setmainfont[]{Times New Roman}
+    \setsansfont[]{Times New Roman}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Text Classification (Newspaper) using Naive Bayes},
+            pdfauthor={Sheryl Mathew (11627236)},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Text Classification (Newspaper) using Naive Bayes}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Sheryl Mathew (11627236)}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{22 October, 2018}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+
+\begin{document}
+\maketitle
+
+\subsection{Data Collection}\label{data-collection}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(jsonlite)}
+\KeywordTok{library}\NormalTok{(dplyr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'dplyr'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(kableExtra) }
+
+\NormalTok{api =}\StringTok{ 'https://content.guardianapis.com/search?'}
+\NormalTok{api_key =}\StringTok{ '0e9a8c4e-1866-4503-a9eb-70e391c499c4'}
+\NormalTok{page_size =}\StringTok{ '200'}
+
+\CommentTok{# pages = c(1:5)}
+\CommentTok{# queries = c('business','sports','entertainment','economy','politics','science','crime','health','art','technology')}
+
+\NormalTok{pages =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\DecValTok{2}\NormalTok{)}
+\NormalTok{queries =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'business'}\NormalTok{,}\StringTok{'sports'}\NormalTok{)}
+
+\NormalTok{news_data =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{()}
+\NormalTok{data_count =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\NormalTok{sum_data_count =}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{(query }\ControlFlowTok{in}\NormalTok{ queries)\{}
+  \ControlFlowTok{for}\NormalTok{ (page }\ControlFlowTok{in}\NormalTok{ pages)\{}
+\NormalTok{    url =}\StringTok{ }\KeywordTok{paste}\NormalTok{(api, }\StringTok{'q='}\NormalTok{, query, }\StringTok{'&page-size='}\NormalTok{, page_size, }\StringTok{'&page='}\NormalTok{, page, }\StringTok{'&show-fields=body'}\NormalTok{, }\StringTok{'&api-key='}\NormalTok{, api_key, }
+                \DataTypeTok{sep =} \StringTok{""}\NormalTok{)}
+\NormalTok{    json =}\StringTok{ }\KeywordTok{fromJSON}\NormalTok{(url)}
+\NormalTok{    body =}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(json}\OperatorTok{$}\NormalTok{response}\OperatorTok{$}\NormalTok{results}\OperatorTok{$}\NormalTok{fields)}
+\NormalTok{    data =}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(json}\OperatorTok{$}\NormalTok{response}\OperatorTok{$}\NormalTok{results)}
+\NormalTok{    data =}\StringTok{ }\KeywordTok{subset}\NormalTok{(data, }\DataTypeTok{select =} \OperatorTok{-}\KeywordTok{c}\NormalTok{(fields))}
+\NormalTok{    data =}\StringTok{ }\KeywordTok{cbind}\NormalTok{(data,body)}
+\NormalTok{    data_count =}\StringTok{ }\KeywordTok{append}\NormalTok{(data_count,}\KeywordTok{nrow}\NormalTok{(data))}
+\NormalTok{    news_data =}\StringTok{ }\KeywordTok{rbind}\NormalTok{(news_data,data)}
+\NormalTok{  \}}
+  
+  \CommentTok{# select_data = select(data, c("sectionName","body"))}
+  \CommentTok{# print(kable(head(select_data), format = "latex", booktabs = T, }
+  \CommentTok{#         caption=paste("Table containing",toupper(query)," News")) %>%}
+  \CommentTok{#     kable_styling(latex_options = c("striped","hold_position")))}
+  \CommentTok{# cat("\textbackslash{}n")}
+  
+\NormalTok{  sum_data_count =}\StringTok{ }\KeywordTok{append}\NormalTok{(sum_data_count,}\KeywordTok{sum}\NormalTok{(}\KeywordTok{as.integer}\NormalTok{(data_count)))}
+\NormalTok{  data_count =}\StringTok{ }\DecValTok{0}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\newpage
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{print_data =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(query,sum_data_count)\{}
+  \KeywordTok{print}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"Number of rows in "}\NormalTok{,}\KeywordTok{toupper}\NormalTok{(query),}\StringTok{" queries: "}\NormalTok{,sum_data_count))}
+  \KeywordTok{cat}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+\KeywordTok{mapply}\NormalTok{(print_data,}\DataTypeTok{query =}\NormalTok{ queries,}\DataTypeTok{sum_data_count =}\NormalTok{ sum_data_count)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Number of rows in  BUSINESS  queries:  400"
+## 
+## [1] "Number of rows in  SPORTS  queries:  400"
+\end{verbatim}
+
+\begin{verbatim}
+## $business
+## NULL
+## 
+## $sports
+## NULL
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{cat}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"Total Number of rows in News: "}\NormalTok{,}\KeywordTok{nrow}\NormalTok{(news_data)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Total Number of rows in News:  800"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{cat}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(news_data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       id                type            sectionId        
+##  Length:800         Length:800         Length:800        
+##  Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character  
+##  sectionName        webPublicationDate   webTitle        
+##  Length:800         Length:800         Length:800        
+##  Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character  
+##     webUrl             apiUrl           isHosted         pillarId        
+##  Length:800         Length:800         Mode :logical   Length:800        
+##  Class :character   Class :character   FALSE:800       Class :character  
+##  Mode  :character   Mode  :character                   Mode  :character  
+##   pillarName            body          
+##  Length:800         Length:800        
+##  Class :character   Class :character  
+##  Mode  :character   Mode  :character
+\end{verbatim}
+
+\subsection{Data Cleaning}\label{data-cleaning}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## -- Attaching packages ------------------------------------------------------------------------------------------ tidyverse 1.2.1 --
+\end{verbatim}
+
+\begin{verbatim}
+## v ggplot2 3.0.0     v readr   1.1.1
+## v tibble  1.4.2     v purrr   0.2.5
+## v tidyr   0.8.1     v stringr 1.3.1
+## v ggplot2 3.0.0     v forcats 0.3.0
+\end{verbatim}
+
+\begin{verbatim}
+## -- Conflicts --------------------------------------------------------------------------------------------- tidyverse_conflicts() --
+## x dplyr::filter()  masks stats::filter()
+## x purrr::flatten() masks jsonlite::flatten()
+## x dplyr::lag()     masks stats::lag()
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(reshape)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'reshape'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:tidyr':
+## 
+##     expand, smiths
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:dplyr':
+## 
+##     rename
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(qdap)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: qdapDictionaries
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: qdapRegex
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'qdapRegex'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:ggplot2':
+## 
+##     %+%
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:dplyr':
+## 
+##     explain
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:jsonlite':
+## 
+##     validate
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: qdapTools
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'qdapTools'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:dplyr':
+## 
+##     id
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: RColorBrewer
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'qdap'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:reshape':
+## 
+##     condense
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:forcats':
+## 
+##     %>%
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:stringr':
+## 
+##     %>%
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:purrr':
+## 
+##     %>%
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:tidyr':
+## 
+##     %>%
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:kableExtra':
+## 
+##     %>%
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:dplyr':
+## 
+##     %>%
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:base':
+## 
+##     Filter
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(textclean)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'textclean'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:qdap':
+## 
+##     check_text, mgsub, replace_contraction, replace_number,
+##     replace_ordinal, replace_symbol, strip, sub_holder
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{news =}\StringTok{ }\NormalTok{news_data}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{ ( }\KeywordTok{c}\NormalTok{(}\StringTok{"id"}\NormalTok{, }\StringTok{"pillarName"}\NormalTok{, }\StringTok{"sectionName"}\NormalTok{, }\StringTok{"webTitle"}\NormalTok{, }\StringTok{"body"}\NormalTok{))}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{rename}\NormalTok{(}
+    \KeywordTok{c}\NormalTok{(}
+    \StringTok{'pillarName'}\NormalTok{ =}\StringTok{ 'type'}\NormalTok{,}
+    \StringTok{'sectionName'}\NormalTok{ =}\StringTok{ 'section'}\NormalTok{,}
+    \StringTok{'webTitle'}\NormalTok{ =}\StringTok{ 'title'}
+\NormalTok{    )}
+\NormalTok{  )}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{na.omit}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{abv =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"bn"}\NormalTok{)}
+\NormalTok{rep =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"billion"}\NormalTok{)}
+
+\NormalTok{clean_function =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(data)\{}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{str_replace_all}\NormalTok{(data, }\StringTok{"<.*?>"}\NormalTok{,}\StringTok{""}\NormalTok{)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{lapply}\NormalTok{(data, }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{gsub}\NormalTok{(}\StringTok{"[[:punct:]]"}\NormalTok{,}\StringTok{" "}\NormalTok{,x))}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{str_replace_all}\NormalTok{(data, }\StringTok{" – "}\NormalTok{, }\StringTok{" "}\NormalTok{)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{gsub}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}"}\StringTok{"}\NormalTok{, }\StringTok{" "}\NormalTok{, data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_curly_quote}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_symbol}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_money}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_abbreviation}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_word_elongation}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_contraction}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_incomplete}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_date}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_ordinal}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{replace_number}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{iconv}\NormalTok{(data,}\DataTypeTok{from=}\StringTok{"UTF-8"}\NormalTok{,}\DataTypeTok{to=}\StringTok{"ASCII//TRANSLIT"}\NormalTok{)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{tolower}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{trimws}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{str_squish}\NormalTok{(data)}
+\NormalTok{  data =}\StringTok{ }\KeywordTok{str_replace_all}\NormalTok{(data, }\StringTok{"[^a-zA-Z}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{s]"}\NormalTok{,}\StringTok{""}\NormalTok{)}
+\NormalTok{\}}
+
+\NormalTok{news}\OperatorTok{$}\NormalTok{body =}\StringTok{ }\KeywordTok{clean_function}\NormalTok{(news}\OperatorTok{$}\NormalTok{body)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in NextMethod(.Generic): probable complete loss of accuracy in
+## modulus
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in split_digits(x): probable complete loss of accuracy in modulus
+
+## Warning in split_digits(x): probable complete loss of accuracy in modulus
+
+## Warning in split_digits(x): probable complete loss of accuracy in modulus
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# print("Columns in the News data before cleaning:")}
+\CommentTok{# names(news_data)}
+\CommentTok{# }
+\KeywordTok{kable}\NormalTok{(}\KeywordTok{head}\NormalTok{(news_data), }\DataTypeTok{format =} \StringTok{"latex"}\NormalTok{, }\DataTypeTok{booktabs =}\NormalTok{ T,}
+        \DataTypeTok{caption=}\KeywordTok{paste}\NormalTok{(}\StringTok{"Table containing Unclean News Data"}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{kable_styling}\NormalTok{(}\DataTypeTok{latex_options =} \KeywordTok{c}\NormalTok{(}\StringTok{"striped"}\NormalTok{,}\StringTok{"hold_position"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\rowcolors{2}{gray!6}{white}
+
+\begin{table}[!h]
+
+\caption{\label{tab:data_cleaning_display_unclean_table}Table containing Unclean News Data}
+\centering
+\begin{tabular}[t]{llllllllllll}
+\hiderowcolors
+\toprule
+id & type & sectionId & sectionName & webPublicationDate & webTitle & webUrl & apiUrl & isHosted & pillarId & pillarName & body\\
+\midrule
+\showrowcolors
+guardian-masterclasses/2018/aug/29/what-is-blockchain-learn-the-basics-and-how-to-use-it-gary-nuttall-digital-business-course & article & guardian-masterclasses & Guardian Masterclasses & 2018-08-29T14:29:35Z & Understanding blockchain for business | Gary Nuttall & https://www.theguardian.com/guardian-masterclasses/2018/aug/29/what-is-blockchain-learn-the-basics-and-how-to-use-it-gary-nuttall-digital-business-course & https://content.guardianapis.com/guardian-masterclasses/2018/aug/29/what-is-blockchain-learn-the-basics-and-how-to-use-it-gary-nuttall-digital-business-course & FALSE & NA & NA & <ul> <li><p><strong><a href="https://www.eventbrite.co.uk/e/understanding-blockchain-for-business-tickets-49646665513">Book now</a></strong></p></li> </ul> <p>If you’ve heard of blockchain, it’s likely that you’ve seen the negative publicity it receives. This is because it’s often confused with cryptocurrency and Bitcoin - but the reality is that blockchain can be used in your business, if you know how to use it.</p> <p>Blockchain can secure online privacy, transfer money, make micropayments, issue shares, remove complications from international shipping processes, and even register music copyright. While these functions of blockchain are more advanced, once you have the building blocks, you will be well on your way to using blockchain to further your business.</p> <p>In this masterclass, aimed at those with little or no understanding of blockchain, expert <strong>Gary Nuttall</strong> will take you through the key aspects in non-technical terms, showing you how it works and why it is different to existing systems and technologies. You will leave with a solid understanding of the basics of blockchain, what the major use cases are for the technology, and how you can use it.</p> <h2>Course content</h2> <ul> <li><p>What is a blockchain?</p></li> <li><p>What is distributed ledger technology?</p></li> <li><p>Examples of how the technology is being used</p></li> <li><p>The difference between public and private blockchains</p></li> <li><p>What is an initial coin offering?</p></li> <li><p>What the regulators are saying</p></li> </ul> <h2>Tutor profile</h2> <p><strong>Gary Nuttall</strong> is well-recognised in the blockchain and distributed ledger technology arena, with particular expertise in the commercial insurance and legal sectors. He is listed as one of the <a href="https://www.rise.global/top-fintech-people">Top 100 Blockchain Influencers</a>, and has presented at numerous conferences and events since 2015. He provides blockchain masterclass training for the general market and offers bespoke training in the insurance, legal and automotive sectors.</p> <h2>Details</h2> <ul> <li><p><strong><a href="https://www.eventbrite.co.uk/e/understanding-blockchain-for-business-tickets-49646665513">Book now</a></strong></p></li> </ul> <p><strong>Date:</strong> Monday 12 November 2018<br><strong>Times:</strong> Afternoon course, 2pm-5pm<br><strong>Location:</strong> The Guardian, Kings Place, 90 York Way, London N1 9GU<br><strong>Price:</strong> £99 plus £5.11 booking fee<br><strong>Capacity:</strong> 36</p> <p><em>Complimentary refreshments included.</em></p> <h2>You may also be interested in…</h2> <ul> <li><p><a href="https://www.theguardian.com/guardian-masterclasses/2015/jul/03/advanced-social-media-for-businesses">Advanced social media for businesses</a></p></li> <li><p><a href="https://www.theguardian.com/guardian-masterclasses/2016/dec/29/writing-for-business-how-to-create-copy-that-has-a-real-impact">Writing for business: How to create copy that has a real impact</a></p></li> </ul> <p><em>Sign up to our </em><a href="https://www.theguardian.com/guardian-masterclasses/2015/jan/19/sign-up-to-the-guardian-masterclasses-newsletter">newsletter</a><em> and you’ll be among the first to find out about our latest courses and special offers. You can also follow us on </em><a href="https://twitter.com/guardianclasses">Twitter</a><em>, and read our latest articles and interviews on our </em><a href="https://www.theguardian.com/guardian-masterclasses/guardian-masterclass-blog">blog</a><em>.</em></p> <h2>Information on Guardian Masterclasses</h2> <p><strong>To contact us, click <a href="https://www.theguardian.com/guardian-masterclasses/about-masterclasses">here</a>. Terms and conditions can be found <a href="https://www.theguardian.com/guardian-masterclasses/terms-and-conditions?intcmp=239">here</a>.</strong></p> <p><strong>All Guardian Masterclasses are fully accessible - but please contact us if you have any queries or concerns.</strong></p> <p><strong>Returns policy<br></strong>Once a purchase is complete we will not be able to refund you where you do not attend or if you cancel your event booking. Please see our <a href="https://www.theguardian.com/guardian-masterclasses/terms-and-conditions">terms and conditions</a> for more information on our refund policy.</p>\\
+guardian-masterclasses/2018/jul/17/understanding-blockchain-for-business-bespoke-training-gary-nuttall & article & guardian-masterclasses & Guardian Masterclasses & 2018-07-17T11:51:22Z & Understanding blockchain for business | Gary Nuttall & https://www.theguardian.com/guardian-masterclasses/2018/jul/17/understanding-blockchain-for-business-bespoke-training-gary-nuttall & https://content.guardianapis.com/guardian-masterclasses/2018/jul/17/understanding-blockchain-for-business-bespoke-training-gary-nuttall & FALSE & NA & NA & <p><strong>Dispel the myths and learn about the realities that blockchain offers in this non-technical workshop.</strong></p> <p>Blockchain is constantly in the news and often receives negative publicity. This is because it is assumed that blockchain, Bitcoin and cryptocurrency are the same thing. In reality, blockchain can be used in your business - if you know how to use it. This masterclass, intended for beginners, will demonstrate how a blockchain works, and you will leave with a solid appreciation of what makes a good use case.</p> <p>Useful for executives, managers and others seeking a better understanding of the technology of blockchain and its applicability, this course will give participants confidence when speaking about the technology, and demonstrate how you assess its suitability within your organisation.</p> <p>This workshop will describe the various components of blockchains and distributed ledgers, and how to connect to a blockchain. Use cases across industries will be discussed and the audience will be encouraged to ask questions during the day as tutor <strong>Gary Nuttall</strong> shares his knowledge of projects being used across a number of industries.</p> <h2>Course content</h2> <ul> <li>Introduction</li> <li>Blockchain and distributed ledger core concepts</li> <li>Blockchain current state</li> <li>Blockchain connectivity</li> <li>Blockchain and its application</li> <li>Emerging themes</li> </ul> <h2>Tutor profile</h2> <p><strong>Gary Nuttall</strong> is well-recognised in the blockchain and distributed ledger technology arena, with particular expertise in the commercial insurance and legal sectors. He is listed as one of the <a href="https://www.rise.global/top-fintech-people">Top 100 Blockchain Influencers</a>, and has presented at numerous conferences and events since 2015. He provides blockchain masterclass training for the general market and offers bespoke training in the insurance, legal and automotive sectors.</p> <h2>Booking information</h2> <p>This course can also be tailored to the specific needs of your organisation. Please enquire on 0800 088 2586 or email corporate.masterclasses@theguardian.com</p>\\
+environment/2018/oct/11/country-diary-bull-meant-business-sandy-bedfordshire & article & environment & Environment & 2018-10-11T04:30:14Z & Country diary: this beast meant business & https://www.theguardian.com/environment/2018/oct/11/country-diary-bull-meant-business-sandy-bedfordshire & https://content.guardianapis.com/environment/2018/oct/11/country-diary-bull-meant-business-sandy-bedfordshire & FALSE & pillar/news & News & <p>A prize exhibit in the <a href="http://www.thehigginsbedford.org.uk/default.aspx?page=0">local museum</a> where I volunteer is the massive horned skull of an aurochs, a prehistoric ancestor of the domesticated cow. This bovine Goliath bears the mark of David on its forehead – a fist-sized hole where it had been poleaxed by a metal spike.</p> <p>Five miles from where the slaughtered aurochs was unearthed, its skull was made flesh for me in the great head of a bull, three metres away and closing. The beast meant business, flashing the whites of its eyes, black pupils rolling back menacingly, but there was no immediate danger.</p> <p>He was lawnmowering up a rough corner of the field, lashing out his tongue to encircle clumps of greenery and tugging them back into his mouth. I had slipped into a metal kissing gate, a shark cage of security where I could watch him at very close quarters, see raindrops shower off his felt-like hide, and breathe in his sweet scent of fermenting grass.</p> <p>One of his cows stood beside him, inviting awestruck comparisons. His head and steepling shoulders were half as broad again. As for his neck – he had no neck. She showed her backbone and a hint of radiating ribs; his taut back was encased in muscle, his chest flashing a twelve-pack.</p> <p>His undercarriage was grossly impressive, his hairy goolies a pair of handbags, a dewlap hanging from his throat like a loose sack. He was a <em>grande dame</em> in heels, his bulk borne on slender forelegs.</p> <p>He took one more step forward, now almost within touching distance. He kept his head down and I sniggered silently at the Ziggy Stardust tuft of mad hair on his crown.</p> <p>The facile words “deadly but docile” struck me at the time, but on the following night I was walking in near darkness along the fence beside another field where a similar herd of reddish-brown cows were grazing peacefully – or so I thought. As I passed the bull, he snorted at one of his females and butted her, sending half a ton of poor cow smashing into the steel barrier. The fence bulged, the cables thrummed, but held. Beware of the bull.</p>\\
+american-express-growth-fuel/ng-interactive/2018/oct/02/on-point-the-ultimate-business-travel-calendar & interactive & american-express-growth-fuel & American Express: Growth fuel & 2018-10-02T00:33:33Z & On point, the ultimate business travel calendar & https://www.theguardian.com/american-express-growth-fuel/ng-interactive/2018/oct/02/on-point-the-ultimate-business-travel-calendar & https://content.guardianapis.com/american-express-growth-fuel/ng-interactive/2018/oct/02/on-point-the-ultimate-business-travel-calendar & FALSE & NA & NA & <figure class="element element-atom element--immersive"> 
+ <gu-atom data-atom-id="interactives/2018/09/amexiig" data-atom-type="interactive"> 
+  <div>
+   default
+  </div>
+ </gu-atom> 
+</figure>\\
+sport/2018/aug/28/mitchelton-scotts-matt-white-theres-unfinished-business & article & sport & Sport & 2018-08-27T18:00:50Z & Mitchelton-Scott’s Matt White: ‘There’s unfinished business’ | Kieran Pender & https://www.theguardian.com/sport/2018/aug/28/mitchelton-scotts-matt-white-theres-unfinished-business & https://content.guardianapis.com/sport/2018/aug/28/mitchelton-scotts-matt-white-theres-unfinished-business & FALSE & pillar/sport & Sport & <p>Sitting in a plush hotel lobby in sunny southern Spain, Matt White is unusually calm. The head sports director of World Tour cycling team Mitchelton-Scott is ordinarily a frenetic ball of energy on race day, finalising logistics, plotting team tactics and counselling his riders on their duties for the stage ahead. But during the 2018 Vuelta a España, which began on Saturday, White appears downright relaxed. Indeed when he sits down for an interview with Guardian Australia, it is rugby, not cycling, that is at the forefront of his mind – having just watched Australia’s <a href="https://www.theguardian.com/sport/2018/aug/25/record-breaker-beauden-barrett-scores-four-as-all-blacks-thump-wallabies-again">latest loss to the All Blacks</a>.<br></p> <p> This atypical serenity is partly because, after guiding Mitchelton-Scott through the gruelling Giro d’Italia and Tour de France, the 44-year-old Australian is taking a well-deserved break. He is in Spain to mentor another sports director, rather than being in the hot-seat himself. But it is also because, unlike many other teams at the Vuelta, Mitchelton-Scott’s season does not depend on a strong finale. “We are three wins away from this being our most successful season,” he says, having finished his dissection of the Wallabies. “And we still have two months left.”</p> <aside class="element element-rich-link element--thumbnail"> <p> <span>Related: </span><a href="https://www.theguardian.com/sport/2018/aug/19/yates-twins-reunited-simon-vuelta-a-espana-glory-adam">Yates twins reunited for Simon’s Vuelta a España glory quest</a> </p> </aside>  <p> There is every chance that the weeks ahead will bring more success. After a break-out Giro, where he won three stages and wore the pink jersey for 13 stages, Britain’s Simon Yates is among the favourites for the Tour of Spain. With Team Sky’s Chris Froome and Geraint Thomas absent, <a href="https://www.theguardian.com/sport/2018/jul/16/richie-porte-another-year-another-mishap-for-cyclings-unluckiest-man">Richie Porte’s fitness uncertain</a> and Vincenzo Nibali reportedly focusing on the world championships, Yates has a golden opportunity to seize his – and Mitchelton-Scott’s – first Grand Tour.</p> <p> “It is an open Vuelta,” says White. “We want to win it.” Twenty-six-year-old Yates is in good form after a recent Tour de Pologne stage win, and came to Spain backed by a strong squad – including his twin brother Adam. “Simon has really stamped his name this year as one of the best riders in the world. He’s just one step away from arriving on the podium.”</p>  <figure class="element element-image" data-media-id="8f6ec699f8731270e94b36ff789ffb0a7e69eb89"> <img src="https://media.guim.co.uk/8f6ec699f8731270e94b36ff789ffb0a7e69eb89/0\_230\_5472\_3283/1000.jpg" alt="Adam Yates" width="1000" height="600" class="gu-image" /> <figcaption> <span class="element-image\_\_caption">Adam Yates on stage two of the Vuelta between Marbella and Caminito Del Rey.</span> <span class="element-image\_\_credit">Photograph: Michael Steele/Getty Images</span> </figcaption> </figure>  <p> White’s 2018 has not been entirely smooth-sailing, though. Mitchelton-Scott drew heavy criticism when <a href="https://www.theguardian.com/sport/2018/jun/22/caleb-ewan-devastated-after-tour-de-france-snub">they omitted prodigious young Australian sprinter Caleb Ewan</a> from their Tour de France roster, despite having foreshadowed his debut at the race six months prior. Ewan complained on Twitter that “devastated is an understatement” and the non-selection seemingly hastened his decision to move elsewhere; the 24-year-old subsequently signed with Lotto–Soudal for 2019.</p> <p> “I haven’t spoken to Caleb since I rang him and told him he wasn’t doing the Tour de France,” says White, when asked if bad blood lingered. “Our race calendars have not coincided. People try to make a big deal about it but at the end of the day this is professional sport, this is business. People make decisions about changing the roster, about tactics. You don’t see people complaining in football codes when they get left on the bench.”</p> <p> Ewan was omitted to enable Mitchelton-Scott to focus on Adam Yates’ yellow jersey campaign in France, which ultimately faltered. “It’s hard to support for both general classification and sprints,” White explains. But his preferencing of an Englishman over a Sydneysider attracted the ire of some commentators, who claimed the Australian-registered team had lost its much-lauded “Australian DNA”.</p> <p> White is visibly bothered by the suggestion. “No, I don’t think that is a fair criticism,” he replies. “If you look at the breakdown of the team: in 2012 we had 30 riders and 17 Australians, now we have 25 and 11. The difference now is that some of our leaders aren’t Australian. The Australian DNA has always been the same.” The sports director cites FC Barcelona. “They have Catalans in the team and they represent Catalonia, but Leo Messi is Argentinian. Does it matter? You are following us because of who we are and what we stand for, not because of how many Australians we have in the line-up. It is frustrating when you see how we’re judged.”</p> <p> These, ultimately, are minor gripes. It is just seven years since Mitchelton-Scott began from scratch and, in that time, they have finished on the podium at two Grand Tours, claimed four of the five one-day monuments and won a handful of iconic week-long races. Having recently resigned the Yates brothers and with Esteban Chaves still under contract, White has a plethora of general classification options at his disposal, while young Australian talents Jack Haig, Robert Power and Lucas Hamilton wait in the wings. The Mitchelton-Scott women’s team, meanwhile, goes from strength to strength and this year <a href="https://www.theguardian.com/sport/2018/jul/16/giro-rosa-won-by-australian-team-mitchelton-scott\#img-1">won the iconic Giro Rosa</a>.</p> <p> “We are one of the best teams in the world,” White says. “We are competitive everywhere we go. We are knocking on the door of a Grand Tour victory, and I am confident that we can win one soon. If I walked away tomorrow I would be very proud – but there’s unfinished business.”</p>\\
+business/nils-pratley-on-finance/2018/aug/15/the-fat-cats-are-back-in-business & article & business & Business & 2018-08-14T23:01:14Z & The fat cats are back in business | Nils Pratley & https://www.theguardian.com/business/nils-pratley-on-finance/2018/aug/15/the-fat-cats-are-back-in-business & https://content.guardianapis.com/business/nils-pratley-on-finance/2018/aug/15/the-fat-cats-are-back-in-business & FALSE & pillar/news & News & <p>Normal service is restored. Normal, that is, for members of FTSE 100 chief executive club. They enjoyed a collective 11\% pay rise in 2017, having suffered a shocking 12\% fall in 2016, according to the annual tally from the High Pay Centre and personnel body CIPD. The average big-company boss got £3.9m.</p> <p>The compilers talk about “significant government and regulatory developments” in the past year and how “we might have expected greater downward pressure to be exerted on top by remuneration committees and shareholders.” They sound surprised by their numbers, but shouldn’t be.</p> <p>Any real government pressure evaporated as soon as Theresa May abandoned her tough talk <a href="https://www.theguardian.com/business/2018/jun/10/theresa-may-misses-a-trick-after-u-turn-over-workers-on-boards">about putting workers on boards</a>. The mandatory publication of pay ratios, to show the difference between the rewards of the boss and the average worker, looms from 2020 but remuneration committees may merely see another opportunity to baffle outsiders by adding complexity to their already-dense reports.</p> <p>That leaves shareholders to apply the brake. The Investment Association, the fund management trade body, these days keeps a “name and shame” list of offenders who have suffered a 20\%-plus revolt against a pay report. The tactic is worth a try but it remains to be seen whether any company can, in practice, be shamed.</p> <p>Rachel Reeves, Labour MP and chair of the business select committee, is nevertheless looking for shareholders to hold boards to account. She should summon a few to understand what she’s up against.</p> <p>Don’t choose the virtuous and more vocal crew who protest against the most egregious packages. Pick on some of the 51\% of Persimmon investors who thought chief executive Jeff Fairburn deserved <a href="https://www.theguardian.com/business/2018/apr/25/persimmon-investors-revolt-bonus-pay-vote">his £75m help-to-buy bonus</a>. It is that silent majority of supine fund managers, resistant to scrutiny of their own rewards, who set the underlying tone.</p> <h2>Is private ownership the only way for long-term interests?</h2> <p>It’s not quite <a href="https://www.theguardian.com/technology/2018/aug/13/elon-musk-saudi-fund-tesla">Elon Musk and Tesla</a>, but esure founder Sir Peter Wood will indeed be staying with the business after the proposed £1.2bn, or 280p-a-share, sale to private equity group Bain Capital. He will roll over £50m of his £360m stake into the new privately owned structure. If all goes well, he’ll probably make another fortune.</p> <p>From Bain’s point of view, it makes solid sense to keep Wood. As the man says himself, he’s launched seven insurance companies over the years (Direct Line being the other big one) and the new owner probably doesn’t want him to open an eighth. Wood will be locked in for five years.</p> <p>The interesting bit is why he wants to quit the public markets. “As a private company and with Bain Capital’s backing, esure will be able to invest behind the innovation required to fully realise the opportunities in this market,” he says.</p> <p>Why can’t the investment flow in quoted-company form? Wood’s answer is a <a href="https://www.theguardian.com/technology/2018/aug/11/elon-musk-and-tesla-sued-over-funding-secured-tweet">Musk-like grumble</a> about the demands of quarterly reporting and shareholders’ appetite for dividends. In his view, the insurance game is about to undergo a data and analytics revolution and the challenge is best tackled with the freedom that privacy allows.</p> <p>Esure’s investors can’t complain too much about the sale price of 280p. On a like-for-like basis that adjusts for the spin-off of price comparison website GoCompare, they are getting about a third more than the flotation price of 2013. But the take-private trend is depressing. Is the stock market now seen as so infected with short-termism that long-term risk-taking is impossible? Sadly, in too many cases, the answer seems to be yes.</p> <h2>Royal Mail’s check is delayed in the post</h2> <p>Royal Mail committed a serious breach of competition law, <a href="https://www.theguardian.com/business/2018/aug/14/royal-mail-fined-competition-law-ofcom-whistl">says regulator Ofcom</a>, which has imposed a £50m fine for alleged dirty pricing tricks that it says were designed to see off competition in the delivery of bulk mail. The company says its hands are clean and it will appeal.</p>  <figure class="element element-embed" data-alt="Guardian business email sign-up">  <iframe src="https://www.theguardian.com/email/form/plaintone/3887" height="52px" data-form-title="Sign up for Business Today" data-form-description="Get the headlines and editors' picks every weekday morning." scrolling="no" seamless frameborder="0" class="iframed--overflow-hidden email-sub\_\_iframe js-email-sub\_\_iframe js-email-sub\_\_iframe--article" data-form-success-desc="Thanks for signing up"></iframe> <figcaption>Sign up to the daily Business Today email or follow Guardian Business on Twitter at @BusinessDesk</figcaption> </figure>  <p>One side will eventually win this quarrel, but it has taken four and a half years to reach this point. Ofcom opened its investigation in February 2014 following a complaint from Whistl, which at the time was trying to break into the delivery market. Indeed, the regulator came to its preliminary judgment – confirmed in all major respects on Tuesday – in June 2015. Competition cases are complex, but that’s going some.</p> <p>Delay may also have killed any prospect of competition in the “final mile” market, the very thing Ofcom supposedly wanted to encourage. Whistl withdrew at the time of the preliminary ruling and no other firm has stepped up. A £50m penalty may look like bold regulation, but the judgment has taken so long to arrive that it will probably make no practical difference.</p>\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\rowcolors{2}{white}{white}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# print("Columns in the News data after cleaning:")}
+\CommentTok{# names(news)}
+\CommentTok{# }
+\CommentTok{# kable(head(news), format = "latex", booktabs = T,}
+\CommentTok{#         caption=paste("Table containing Clean News Data")) %>%}
+\CommentTok{#     kable_styling(latex_options = c("striped","hold_position"))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# print("Sample of Unclean News Article Body:")}
+\CommentTok{# cat("\textbackslash{}n")}
+\CommentTok{# news_data$body[2]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# print("Sample of Clean News Article Body:")}
+\CommentTok{# cat("\textbackslash{}n")}
+\CommentTok{# news$body[2]}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}
