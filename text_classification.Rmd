@@ -20,6 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(jsonlite)
 library(dplyr)
 library(kableExtra) 
+library(formatR)
 
 api = 'https://content.guardianapis.com/search?'
 api_key = '0e9a8c4e-1866-4503-a9eb-70e391c499c4'
@@ -58,7 +59,7 @@ for(query in queries){
   data_count = 0
 }
 ```
-\newpage
+
 ```{r data_collection_display}
 print_data = function(query,sum_data_count){
   print(paste("Number of rows in ",toupper(query)," queries: ",sum_data_count))
@@ -164,7 +165,8 @@ tokenized_words = tokenize_word_stems(news_body, stopwords = stopwords::stopword
 # term_matrix = DocumentTermMatrix(corpus_words,
 #                    control=list(
 #                        tokenize=newBigramTokenizer,
-#                        wordLengths = c(1, Inf)))
+#       Show in New WindowClear OutputExpand/Collapse Output
+
 # term_matrix
 # inspect(term_matrix)
 ```

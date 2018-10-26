@@ -11,7 +11,9 @@ mainfont: Times New Roman
 ---
 
 ```{r setup, include=FALSE}
+library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
+opts_chunk$set(tidy.opts=list(width.cutoff=40),tidy=TRUE)
 ```
 
 ##Data Collection
@@ -20,6 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(jsonlite)
 library(dplyr)
 library(kableExtra) 
+library(formatR)
 
 api = 'https://content.guardianapis.com/search?'
 api_key = '0e9a8c4e-1866-4503-a9eb-70e391c499c4'
@@ -91,7 +94,9 @@ news = news_data%>%
     )
   )%>%
   na.omit()
+
 ```
+
 
 ```{r data_cleaning_function}
 abv = c("bn")
@@ -123,23 +128,27 @@ news$body = clean_function(news$body)
 ```
 
 ```{r data_cleaning_display_unclean_table}
-# print("Columns in the News data before cleaning:")
-# names(news_data)
-# 
-# kable(head(news_data), format = "latex", booktabs = T,
-#         caption=paste("Table containing Unclean News Data")) %>%
-#     kable_styling(latex_options = c("striped","hold_position"))
+print("Columns in the News data before cleaning:")
+names(news_data)
+
+unclean_data = select(news_data, c("id", "pillarName", "sectionName", "webTitle", "body"))
+  
+kable(head(unclean_data), format = "latex", booktabs = T, 
+      caption="Table containing details of Auto CSV") %>%
+kable_styling(latex_options = c("striped","hold_position","scale_down"))
 
 
 ```
 
 ```{r}
-# print("Columns in the News data after cleaning:")
-# names(news)
-# 
-# kable(head(news), format = "latex", booktabs = T,
-#         caption=paste("Table containing Clean News Data")) %>%
-#     kable_styling(latex_options = c("striped","hold_position"))
+print("Columns in the News data after cleaning:")
+names(news)
+
+clean_data = select(news, c("type", "section","body"))
+
+kable(head(clean_data), format = "latex", booktabs = T,
+      caption="Table containing details of Auto CSV") %>%
+kable_styling(latex_options = c("striped","hold_position","scale_down"))
 ```
 
 
@@ -147,7 +156,7 @@ news$body = clean_function(news$body)
 print("Sample of Unclean News Article Body:")
 cat("\n")
 news_data$body[2]
-
+strwrap(news_data$body[2], width = 16)
 
 ```
 
