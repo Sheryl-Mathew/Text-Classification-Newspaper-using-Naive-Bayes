@@ -133,9 +133,9 @@ names(news_data)
 
 unclean_data = select(news_data, c("id", "pillarName", "sectionName", "webTitle", "body"))
   
-kable(head(unclean_data), format = "latex", booktabs = T, 
-      caption="Table containing details of Auto CSV") %>%
-kable_styling(latex_options = c("striped","hold_position","scale_down"))
+# kable(head(unclean_data), format = "latex", booktabs = T, 
+#       caption="Table containing details of Auto CSV") %>%
+# kable_styling(latex_options = c("striped","hold_position","scale_down"))
 
 
 ```
@@ -146,9 +146,9 @@ names(news)
 
 clean_data = select(news, c("type", "section","body"))
 
-kable(head(clean_data), format = "latex", booktabs = T,
-      caption="Table containing details of Auto CSV") %>%
-kable_styling(latex_options = c("striped","hold_position","scale_down"))
+# kable(head(clean_data), format = "latex", booktabs = T,
+#       caption="Table containing details of Auto CSV") %>%
+# kable_styling(latex_options = c("striped","hold_position","scale_down"))
 ```
 
 

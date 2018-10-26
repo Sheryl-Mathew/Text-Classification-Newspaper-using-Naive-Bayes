@@ -127,16 +127,8 @@ news$body = clean_function(news$body)
 print("Columns in the News data before cleaning:")
 names(news_data)
 
-kable(head(news_data), format = "latex", booktabs = T,
-        caption=paste("Table containing Unclean News Data")) %>%
-    kable_styling(latex_options = c("striped","hold_position"))
-
 print("Columns in the News data after cleaning:")
 names(news)
-
-kable(head(news), format = "latex", booktabs = T,
-        caption=paste("Table containing Clean News Data")) %>%
-    kable_styling(latex_options = c("striped","hold_position"))
 
 print("Sample of Unclean News Article Body:")
 cat("\n")
